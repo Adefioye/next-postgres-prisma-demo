@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Project to introduce me to Next and prisma integration
 
-## Getting Started
+- Do **sudo npm i -g vercel@latest** to have access to vercel CLI.
+- Pull enviroment variables from vercel to local repository using
+  **vercel env pull .env.local**
+- Link local repository and vercel using vercel link
+- Run **npm i --save-dev prisma**
+- To migrate **npx prisma db push**
+- To preview prisma studio, **npx prisma studio**
+- Install prisma client using **npm install @prisma/client**
+- **npx prisma generate**
 
-First, run the development server:
+### KYLE PRISMA SECTION
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- To setup prisma, **npm prisma init --datasource-provider postgresql**
+
+- .env contains DATABASE_URL=postgresql://<user(postgres)>:<password>@localhost:<port(5432)>/<dbName>
+
+- To format _schema.prisma_ use **npx prisma format**
+
+- _@id_ used to define identifier in a prisma model
+
+- Migrate prisma model to database, **npx prisma migrate dev --name init**
+
+- Install prisma client using **npm install @prisma/client**
+
+- **npx prisma generate**
+
+- One to many relationship, user, post -> 1-many relationship.
+
+```
+model User {
+  id String @id @default(uuid())
+  writtenPosts Post[] @relation("WrittenPosts")
+  favoritePosts Post[] @relation("FavoritePosts")
+}
+
+model Post {
+  author User @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId String
+  favoritedBy User? @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById String?
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Many to many relationship, category, post -> many-many relationship.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+model Post {
+  categories: Category[]
+}
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+model Category {
+  posts: Post[ ]
+}
+```
 
-## Learn More
+- One to one relationship, user, userPreference -> one-to-one relationship.
 
-To learn more about Next.js, take a look at the following resources:
+```
+model User {
+  userPreference UserPreference?
+}
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+model UserPreference {
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- MODEL ATTRIBUTES
+@unique for unique attributes
+@updatedAt for current time
 
-## Deploy on Vercel
+For block-level attributes, use 2-hat symbol (@@)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+example,
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+@@unique([age, name])
+@@index([email])
+@@id([title, authorId])
+
+- Include and select property
+
+- take property used for pagination
+ 
+- skip used for skipping pages
+
+- orderBy for sorting based on an attribute
+
